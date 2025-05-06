@@ -52,14 +52,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($search || $status)) {
     </nav>
 </header>
 
-
-    <div class="centered" style="flex-direction: column; padding: 20px;">
+    <div class="search-wrapper">
         <div class="form-container" style="max-width: 600px; margin-bottom: 30px;">
             <h1>Поиск автомобиля</h1>
             <form method="get">
                 <input type="text" name="query" placeholder="Введите модель или город" value="<?= htmlspecialchars($search) ?>">
                 <select name="status">
-                    <option value="">Любой статус</option>
                     <option value="available" <?= $status === 'available' ? 'selected' : '' ?>>Доступен</option>
                     <option value="booked" <?= $status === 'booked' ? 'selected' : '' ?>>Забронирован</option>
                     <option value="maintenance" <?= $status === 'maintenance' ? 'selected' : '' ?>>На обслуживании</option>
@@ -69,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($search || $status)) {
         </div>
 
         <?php if ($cars): ?>
-            <div class="content-grid">
+            <div class="car-grid">
                 <?php foreach ($cars as $car): ?>
                     <article class="card">
                         <img src="uploads/<?= htmlspecialchars($car['photo']) ?>" alt="Авто">

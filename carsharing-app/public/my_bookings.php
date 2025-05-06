@@ -1,6 +1,26 @@
 <?php
 session_start();
-require_once '../config/db.php';
+require_once '../config/db.php'; // <--- добавлен до использования $pdo
+
+$pdo = db_connect(); // <--- перенесён сюда ДО логики с prepare
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['end_booking_id'])) {
+    $bookingId = $_POST['end_booking_id'];
+
+    // Получаем car_id для обновления статуса машины
+    $stmt = $pdo->prepare("SELECT car_id FROM bookings WHERE id = ? AND user_id = ?");
+    $stmt->execute([$bookingId, $_SESSION['user_id']]);
+    $car = $stmt->fetch();
+
+    if ($car) {
+        $pdo->prepare("UPDATE cars SET status = 'available' WHERE id = ?")->execute([$car['car_id']]);
+        $pdo->prepare("DELETE FROM bookings WHERE id = ?")->execute([$bookingId]);
+
+        // После завершения бронирования перенаправим, чтобы обновить страницу
+        header("Location: my_bookings.php");
+        exit;
+    }
+}
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -59,7 +79,12 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <p><strong>Местоположение:</strong> <?= htmlspecialchars($booking['location']) ?></p>
                         <p><strong>Начало:</strong> <?= htmlspecialchars($booking['start_time']) ?></p>
                         <p><strong>Конец:</strong> <?= htmlspecialchars($booking['end_time']) ?></p>
-                        <a href="edit_booking.php?id=<?= $booking['id'] ?>" class="btn">Изменить</a>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <a href="edit_booking.php?id=<?= $booking['id'] ?>" class="btn">Изменить</a>
+                            <form method="post">
+                                <input type="hidden" name="end_booking_id" value="<?= $booking['id'] ?>">
+                                <button class="btn delete" type="submit">Закончить</button>
+                            </form>
                     </div>
                 </div>
             <?php endforeach; ?>

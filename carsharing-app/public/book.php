@@ -14,7 +14,8 @@ $car = null;
 $message = '';
 
 if ($car_id) {
-    $stmt = $pdo->prepare("SELECT * FROM cars WHERE id = ?");
+    // Только доступные машины
+    $stmt = $pdo->prepare("SELECT * FROM cars WHERE id = ? AND status = 'available'");
     $stmt->execute([$car_id]);
     $car = $stmt->fetch(PDO::FETCH_ASSOC);
 }
@@ -69,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $car) {
             </form>
 
         <?php else: ?>
-            <div class="error">Автомобиль не найден.</div>
+            <div class="error">Автомобиль недоступен для бронирования. Возможно, он уже занят или на обслуживании.</div>
         <?php endif; ?>
 
         <div style="text-align: center; margin-top: 15px;">
