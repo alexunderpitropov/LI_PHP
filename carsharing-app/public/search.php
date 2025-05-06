@@ -6,6 +6,16 @@ $cars = [];
 $search = trim($_GET['query'] ?? '');
 $status = $_GET['status'] ?? '';
 
+/**
+ * Поиск автомобилей по модели и локации, а также по статусу:
+ * - доступен (available)
+ * - забронирован (booked)
+ * - на обслуживании (maintenance)
+ *
+ * @param string $_GET['query'] Поисковый запрос.
+ * @param string $_GET['status'] Фильтр по статусу.
+ * @return array $cars Массив результатов из базы.
+ */
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($search || $status)) {
     $pdo = db_connect();
     $sql = "SELECT * FROM cars WHERE 1=1";

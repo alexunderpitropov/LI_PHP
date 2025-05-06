@@ -2,6 +2,7 @@
 session_start();
 require_once '../config/db.php';
 
+// Проверка авторизации администратора
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../login.php");
     exit;
@@ -9,7 +10,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 
 $pdo = db_connect();
 
-// Обработка изменения роли
+/**
+ * Обрабатывает запросы на:
+ * - Назначение пользователя администратором.
+ * - Удаление пользователя (кроме текущего).
+ *
+ * @param int $_POST['user_id'] ID пользователя.
+ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['make_admin'])) {
         $user_id = $_POST['user_id'];
@@ -19,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($_POST['delete_user'])) {
         $user_id = $_POST['user_id'];
-        if ($user_id != $_SESSION['user_id']) { // Защита от самоуничтожения
+        if ($user_id != $_SESSION['user_id']) { // Защита от удаления самого себя
             $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
             $stmt->execute([$user_id]);
         }
@@ -29,7 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// Получаем список пользователей
+/**
+ * Получает список всех пользователей.
+ *
+ * @return array $users Содержит записи из таблицы users.
+ */
 $stmt = $pdo->query("SELECT * FROM users ORDER BY created_at DESC");
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

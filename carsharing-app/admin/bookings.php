@@ -2,6 +2,7 @@
 session_start();
 require_once '../../config/db.php';
 
+// Проверка авторизации администратора
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../login.php");
     exit;
@@ -9,6 +10,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 
 $pdo = db_connect();
 
+/**
+ * Получает список всех бронирований с информацией об авто и пользователе.
+ *
+ * @return array $bookings Содержит данные из таблиц bookings, cars и users.
+ */
 $stmt = $pdo->query("
     SELECT b.*, c.model, c.number_plate, u.name AS user_name
     FROM bookings b

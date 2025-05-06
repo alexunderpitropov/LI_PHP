@@ -2,6 +2,18 @@
 require_once '../config/db.php';
 session_start();
 
+/**
+ * Обработка регистрации нового пользователя:
+ * - валидация имени, email и паролей;
+ * - проверка на существующего пользователя;
+ * - хеширование пароля;
+ * - добавление в базу и редирект на login.
+ *
+ * @param string $_POST['name'] Имя пользователя.
+ * @param string $_POST['email'] Email пользователя.
+ * @param string $_POST['password'] Новый пароль.
+ * @param string $_POST['confirm_password'] Подтверждение пароля.
+ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');

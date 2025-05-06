@@ -1,13 +1,20 @@
 <?php
 session_start();
-require_once '../config/db.php'; // <--- добавлен до использования $pdo
+require_once '../config/db.php';
 
-$pdo = db_connect(); // <--- перенесён сюда ДО логики с prepare
+$pdo = db_connect();
 
+/**
+ * Обработка завершения бронирования:
+ * - пользователь нажал "Закончить";
+ * - статус автомобиля меняется на "available";
+ * - бронирование удаляется.
+ *
+ * @param int $_POST['end_booking_id'] ID бронирования.
+ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['end_booking_id'])) {
     $bookingId = $_POST['end_booking_id'];
 
-    // Получаем car_id для обновления статуса машины
     $stmt = $pdo->prepare("SELECT car_id FROM bookings WHERE id = ? AND user_id = ?");
     $stmt->execute([$bookingId, $_SESSION['user_id']]);
     $car = $stmt->fetch();
@@ -16,12 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['end_booking_id'])) {
         $pdo->prepare("UPDATE cars SET status = 'available' WHERE id = ?")->execute([$car['car_id']]);
         $pdo->prepare("DELETE FROM bookings WHERE id = ?")->execute([$bookingId]);
 
-        // После завершения бронирования перенаправим, чтобы обновить страницу
         header("Location: my_bookings.php");
         exit;
     }
 }
 
+/**
+ * Проверка авторизации пользователя и обновление статусов истекших аренд.
+ */
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;

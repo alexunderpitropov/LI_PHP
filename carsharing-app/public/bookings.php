@@ -2,6 +2,7 @@
 session_start();
 require_once '../config/db.php';
 
+// Проверка доступа только для авторизованных пользователей
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
@@ -10,6 +11,12 @@ if (!isset($_SESSION['user_id'])) {
 $pdo = db_connect();
 $user_id = $_SESSION['user_id'];
 
+/**
+ * Получает список всех бронирований текущего пользователя,
+ * включая информацию о модели и номере авто.
+ *
+ * @return array $bookings
+ */
 $stmt = $pdo->prepare("
     SELECT b.*, c.model, c.number_plate
     FROM bookings b
@@ -20,6 +27,7 @@ $stmt = $pdo->prepare("
 $stmt->execute([$user_id]);
 $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 
 <!DOCTYPE html>
 <html>

@@ -2,6 +2,11 @@
 session_start();
 require_once '../config/db.php';
 
+/**
+ * Страница выбора автомобиля для аренды.
+ * Доступна только авторизованным пользователям.
+ * Отображает все машины со статусом "available".
+ */
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;

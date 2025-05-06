@@ -2,11 +2,18 @@
 session_start();
 require_once '../config/db.php';
 
+// Проверка авторизации администратора
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../login.php");
     exit;
 }
 
+/**
+ * Обрабатывает форму добавления автомобиля:
+ * - проверяет поля;
+ * - загружает изображение;
+ * - сохраняет автомобиль в базу данных.
+ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $model = trim($_POST['model'] ?? '');
     $plate = trim($_POST['number_plate'] ?? '');

@@ -2,6 +2,7 @@
 session_start();
 require_once '../config/db.php';
 
+// Проверка авторизации пользователя
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
@@ -17,7 +18,13 @@ if (!isset($_GET['id'])) {
 
 $booking_id = (int) $_GET['id'];
 
-// Проверка: принадлежит ли бронирование этому пользователю
+/**
+ * Проверяет, принадлежит ли бронирование текущему пользователю.
+ *
+ * @param int $booking_id ID бронирования.
+ * @param int $user_id ID текущего пользователя.
+ * @return array|null $booking Данные бронирования или null.
+ */
 $stmt = $pdo->prepare("SELECT * FROM bookings WHERE id = ? AND user_id = ?");
 $stmt->execute([$booking_id, $user_id]);
 $booking = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -27,6 +34,12 @@ if (!$booking) {
     exit;
 }
 
+/**
+ * Обрабатывает изменение дат бронирования.
+ *
+ * @param string $start Новое начало аренды.
+ * @param string $end Новое окончание аренды.
+ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $start = $_POST['start_time'] ?? '';
     $end = $_POST['end_time'] ?? '';
@@ -37,10 +50,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: my_bookings.php");
         exit;
     } else {
-        $error = "Введите корректные дату и время.";
+        $error = "Введите корректные даты начала и окончания.";
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html>

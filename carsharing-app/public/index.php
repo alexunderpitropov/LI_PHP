@@ -4,7 +4,12 @@ require_once '../config/db.php';
 
 $pdo = db_connect();
 
-// Получаем список доступных машин
+/**
+ * Извлекает список автомобилей со статусом 'available'
+ * для отображения на главной странице (публичный доступ).
+ *
+ * @return array $cars
+ */
 $stmt = $pdo->prepare("SELECT * FROM cars WHERE status = 'available'");
 $stmt->execute();
 $cars = $stmt->fetchAll(PDO::FETCH_ASSOC);

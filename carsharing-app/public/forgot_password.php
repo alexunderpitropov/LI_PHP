@@ -6,6 +6,13 @@ $error = '';
 $success = '';
 $tokenLink = '';
 
+/**
+ * Обработка формы восстановления пароля:
+ * - проверка email;
+ * - генерация токена;
+ * - сохранение токена в таблице password_resets;
+ * - отображение ссылки на сброс.
+ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
 
@@ -27,10 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->prepare("INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)")
                 ->execute([$user['id'], $token, $expires]);
 
-            $tokenLink = "http://localhost/LI_PHP/carsharing-app/reset_password.php?token=$token";
-            $success = 'Ссылка для сброса сгенерирована.';
+            $tokenLink = "http://localhost/LI_PHP/carsharing-app/reset_password.php?token=" . $token;
         } else {
-            $error = 'Пользователь с таким email не найден.';
+            $error = "Пользователь с таким email не найден.";
         }
     }
 }

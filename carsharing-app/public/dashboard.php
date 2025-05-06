@@ -1,6 +1,10 @@
 <?php
 session_start();
 
+/**
+ * Страница личного кабинета пользователя.
+ * Предоставляет доступ к действиям в зависимости от роли (user/admin).
+ */
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;

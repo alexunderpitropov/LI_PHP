@@ -1,4 +1,11 @@
 <?php
+
+/**
+ * Создает подключение к базе данных с использованием PDO.
+ *
+ * @return PDO Подключение к базе данных.
+ * @throws PDOException В случае ошибки подключения.
+ */
 function db_connect() {
     $host = 'localhost';
     $dbname = 'php_individual';

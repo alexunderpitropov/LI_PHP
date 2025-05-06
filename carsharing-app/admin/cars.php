@@ -2,6 +2,7 @@
 session_start();
 require_once '../config/db.php';
 
+// Проверка авторизации администратора
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../login.php");
     exit;
@@ -9,7 +10,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 
 $pdo = db_connect();
 
-// Удаление машины
+/**
+ * Обработка удаления автомобиля по ID.
+ *
+ * @param int $_POST['delete_id'] ID автомобиля для удаления.
+ * @return void Перенаправляет обратно на cars.php после удаления.
+ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
     $stmt = $pdo->prepare("DELETE FROM cars WHERE id = ?");
     $stmt->execute([$_POST['delete_id']]);
@@ -17,7 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
     exit;
 }
 
-// Получаем список всех машин
+/**
+ * Получение списка всех автомобилей из базы данных.
+ *
+ * @return array $cars Массив всех записей таблицы cars.
+ */
 $stmt = $pdo->query("SELECT * FROM cars");
 $cars = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

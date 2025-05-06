@@ -2,6 +2,7 @@
 session_start();
 require_once '../config/db.php';
 
+// Защита: доступ только авторизованным пользователям
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
@@ -13,13 +14,25 @@ $car_id = $_GET['id'] ?? null;
 $car = null;
 $message = '';
 
+/**
+ * Получает информацию об автомобиле по ID,
+ * если он доступен для бронирования.
+ *
+ * @param int $car_id
+ * @return array|null $car
+ */
 if ($car_id) {
-    // Только доступные машины
     $stmt = $pdo->prepare("SELECT * FROM cars WHERE id = ? AND status = 'available'");
     $stmt->execute([$car_id]);
     $car = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+/**
+ * Обработка формы бронирования:
+ * - проверка дат;
+ * - создание записи в таблице bookings;
+ * - обновление статуса авто.
+ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $car) {
     $user_id = $_SESSION['user_id'];
     $start = $_POST['start_time'] ?? '';
@@ -38,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $car) {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html>

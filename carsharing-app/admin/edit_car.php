@@ -2,6 +2,7 @@
 session_start();
 require_once '../config/db.php';
 
+// Проверка авторизации администратора
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../login.php");
     exit;
@@ -15,6 +16,12 @@ if (!$car_id) {
     exit;
 }
 
+/**
+ * Получает данные автомобиля по ID для редактирования.
+ *
+ * @param int $car_id ID автомобиля.
+ * @return array|null $car Данные автомобиля или null, если не найден.
+ */
 $stmt = $pdo->prepare("SELECT * FROM cars WHERE id = ?");
 $stmt->execute([$car_id]);
 $car = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -24,6 +31,11 @@ if (!$car) {
     exit;
 }
 
+/**
+ * Обрабатывает отправку формы редактирования:
+ * - проверяет и валидирует поля;
+ * - обновляет данные в базе.
+ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $model = trim($_POST['model'] ?? '');
     $plate = trim($_POST['number_plate'] ?? '');
@@ -36,11 +48,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$model, $plate, $location, $price, $status, $car_id]);
         header("Location: cars.php");
         exit;
-    } else {
-        $error = "Пожалуйста, заполните все поля корректно.";
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="ru">

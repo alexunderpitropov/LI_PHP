@@ -2,6 +2,16 @@
 session_start();
 require_once '../config/db.php';
 
+/**
+ * Обрабатывает форму входа пользователя:
+ * - извлекает email и пароль;
+ * - проверяет пользователя в базе;
+ * - устанавливает сессионные переменные;
+ * - перенаправляет на dashboard.
+ *
+ * @param string $_POST['email'] Email пользователя.
+ * @param string $_POST['password'] Пароль (в незахешированном виде).
+ */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email    = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
