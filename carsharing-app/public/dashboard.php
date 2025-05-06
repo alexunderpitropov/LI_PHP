@@ -32,15 +32,18 @@ $role = $_SESSION['role'] ?? 'user';
         <p style="color: #ccc;">Вы вошли как: <strong><?= htmlspecialchars($role) ?></strong></p>
 
         <ul style="list-style: none; padding: 0; margin-top: 25px;">
-            <li style="margin-bottom: 10px;"><a href="book.php" class="card-button">Забронировать автомобиль</a></li>
+            <li style="margin-bottom: 10px;"><a href="select_car.php" class="btn">Забронировать автомобиль</a></li>
 
             <?php if ($role === 'admin'): ?>
-                <li style="margin-bottom: 10px;"><a href="admin/cars.php" class="card-button">Управление автопарком</a></li>
-                <li style="margin-bottom: 10px;"><a href="admin/users.php" class="card-button">Пользователи</a></li>
+                <li style="margin-bottom: 10px;"><a href="../admin/cars.php" class="card-button">Управление автопарком</a></li>
+                <li style="margin-bottom: 10px;"><a href="../admin/users.php" class="card-button">Пользователи</a></li>
+            <?php else: ?>
+                <li style="margin-bottom: 10px;"><a href="my_bookings.php" class="card-button">Мои бронирования</a></li>
             <?php endif; ?>
 
             <li><a href="logout.php" class="card-button" style="background:#555;">Выйти</a></li>
         </ul>
+
     </main>
 
 </body>

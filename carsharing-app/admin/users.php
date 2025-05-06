@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../../config/db.php';
+require_once '../config/db.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../login.php");
@@ -39,11 +39,11 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <title>Пользователи</title>
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../public/styles.css">
 </head>
 <body>
     <h1>Список пользователей</h1>
-    <p><a href="../dashboard.php">Назад в кабинет</a></p>
+    <p><a href="../public/dashboard.php">Назад</a></p>
 
     <table border="1" cellpadding="5" cellspacing="0">
         <tr>

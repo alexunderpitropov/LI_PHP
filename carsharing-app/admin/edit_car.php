@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../../config/db.php';
+require_once '../config/db.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../login.php");
@@ -8,14 +8,22 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 }
 
 $pdo = db_connect();
+$car_id = $_GET['id'] ?? null;
 
-$id = $_GET['id'] ?? null;
-if (!$id) {
+if (!$car_id) {
     header("Location: cars.php");
     exit;
 }
 
-// Обработка обновления
+$stmt = $pdo->prepare("SELECT * FROM cars WHERE id = ?");
+$stmt->execute([$car_id]);
+$car = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$car) {
+    header("Location: cars.php");
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $model = trim($_POST['model'] ?? '');
     $plate = trim($_POST['number_plate'] ?? '');
@@ -25,51 +33,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($model && $plate && $location && is_numeric($price)) {
         $stmt = $pdo->prepare("UPDATE cars SET model = ?, number_plate = ?, location = ?, price_per_hour = ?, status = ? WHERE id = ?");
-        $stmt->execute([$model, $plate, $location, $price, $status, $id]);
+        $stmt->execute([$model, $plate, $location, $price, $status, $car_id]);
         header("Location: cars.php");
         exit;
     } else {
-        $error = "Заполните все поля корректно.";
+        $error = "Пожалуйста, заполните все поля корректно.";
     }
-}
-
-// Получение данных об авто
-$stmt = $pdo->prepare("SELECT * FROM cars WHERE id = ?");
-$stmt->execute([$id]);
-$car = $stmt->fetch(PDO::FETCH_ASSOC);
-if (!$car) {
-    header("Location: cars.php");
-    exit;
 }
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Редактирование автомобиля</title>
-    <link rel="stylesheet" href="../styles.css">
+    <title>Редактировать авто</title>
+    <link rel="stylesheet" href="../public/styles.css">
 </head>
-<body>
-    <h1>Редактировать автомобиль</h1>
+<body class="centered">
+    <div class="form-container">
+        <h1>Редактировать автомобиль</h1>
 
-    <?php if (!empty($error)) echo "<p style='color:red;'>$error</p>"; ?>
+        <?php if (!empty($error)): ?>
+            <div class="error"><?= $error ?></div>
+        <?php endif; ?>
 
-    <form method="post">
-        Модель: <input type="text" name="model" value="<?= htmlspecialchars($car['model']) ?>" required><br><br>
-        Номерной знак: <input type="text" name="number_plate" value="<?= htmlspecialchars($car['number_plate']) ?>" required><br><br>
-        Местоположение: <input type="text" name="location" value="<?= htmlspecialchars($car['location']) ?>" required><br><br>
-        Цена за час: <input type="number" step="0.01" name="price_per_hour" value="<?= $car['price_per_hour'] ?>" required><br><br>
-        Статус:
-        <select name="status">
-            <option value="available" <?= $car['status'] === 'available' ? 'selected' : '' ?>>Доступна</option>
-            <option value="booked" <?= $car['status'] === 'booked' ? 'selected' : '' ?>>Забронирована</option>
-            <option value="maintenance" <?= $car['status'] === 'maintenance' ? 'selected' : '' ?>>На обслуживании</option>
-        </select><br><br>
+        <form method="post">
+            <label>Модель:</label>
+            <input type="text" name="model" value="<?= htmlspecialchars($car['model']) ?>" required>
 
-        <button type="submit">Сохранить изменения</button>
-    </form>
+            <label>Номерной знак:</label>
+            <input type="text" name="number_plate" value="<?= htmlspecialchars($car['number_plate']) ?>" required>
 
-    <p><a href="cars.php">Назад к автопарку</a></p>
+            <label>Местоположение:</label>
+            <input type="text" name="location" value="<?= htmlspecialchars($car['location']) ?>" required>
+
+            <label>Цена за час:</label>
+            <input type="number" step="0.01" name="price_per_hour" value="<?= htmlspecialchars($car['price_per_hour']) ?>" required>
+
+            <label>Статус:</label>
+            <select name="status">
+                <option value="available" <?= $car['status'] === 'available' ? 'selected' : '' ?>>Доступен</option>
+                <option value="booked" <?= $car['status'] === 'booked' ? 'selected' : '' ?>>Забронирован</option>
+                <option value="maintenance" <?= $car['status'] === 'maintenance' ? 'selected' : '' ?>>На обслуживании</option>
+            </select>
+
+            <button type="submit">Сохранить изменения</button>
+        </form>
+
+        <div style="text-align:center; margin-top: 15px;">
+            <a href="cars.php">Назад к автопарку</a>
+        </div>
+    </div>
 </body>
 </html>

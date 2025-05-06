@@ -33,7 +33,7 @@ $cars = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </nav>
     </header>
 
-    <main class="content-grid">
+    <main class="car-grid"> <!-- заменили class="content-grid" на нужный grid -->
         <?php foreach ($cars as $car): ?>
         <article class="card">
             <img src="uploads/<?= htmlspecialchars($car['photo']) ?>" alt="Фото автомобиля">
@@ -46,7 +46,6 @@ $cars = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </article>
         <?php endforeach; ?>
     </main>
-
 </body>
 </html>
 

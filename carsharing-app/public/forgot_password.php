@@ -1,52 +1,64 @@
 <?php
 require_once '../config/db.php';
+$pdo = db_connect();
+
+$error = '';
+$success = '';
+$tokenLink = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
 
-    if ($email) {
-        $pdo = db_connect();
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Некорректный email.';
+    } else {
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->execute([$email]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $user = $stmt->fetch();
 
         if ($user) {
             $token = bin2hex(random_bytes(32));
-            $expires_at = date('Y-m-d H:i:s', time() + 3600); // 1 час
+            $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
-            $stmt = $pdo->prepare("INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)");
-            $stmt->execute([$user['id'], $token, $expires_at]);
+            // удалим старые токены
+            $pdo->prepare("DELETE FROM password_resets WHERE user_id = ?")->execute([$user['id']]);
 
-            // Для демонстрации просто выводим ссылку
-            $reset_link = "http://localhost/reset_password.php?token=$token";
-            $message = "Ссылка для сброса пароля (демо): <a href=\"$reset_link\">Сбросить пароль</a>";
+            // сохраним новый токен
+            $pdo->prepare("INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)")
+                ->execute([$user['id'], $token, $expires]);
+
+            $tokenLink = "http://localhost/LI_PHP/carsharing-app/reset_password.php?token=$token";
+            $success = 'Ссылка для сброса сгенерирована.';
         } else {
-            $error = "Пользователь не найден.";
+            $error = 'Пользователь с таким email не найден.';
         }
-    } else {
-        $error = "Введите email.";
     }
 }
 ?>
 
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Забыли пароль?</title>
-        <link rel="stylesheet" href="styles.css">
-    </head>
-<body>
+<head>
+    <meta charset="UTF-8">
+    <title>Восстановление пароля</title>
+    <link rel="stylesheet" href="../public/styles.css">
+</head>
+<body style="padding: 40px;">
     <h1>Восстановление пароля</h1>
 
-    <?php if (!empty($error)) echo "<p style='color:red;'>$error</p>"; ?>
-    <?php if (!empty($message)) echo "<p>$message</p>"; ?>
+    <?php if ($error): ?>
+        <div class="error"><?= htmlspecialchars($error) ?></div>
+    <?php elseif ($success): ?>
+        <div class="success"><?= htmlspecialchars($success) ?></div>
+        <p>Ссылка для сброса (демо): <a href="<?= htmlspecialchars($tokenLink) ?>">Сбросить пароль</a></p>
+    <?php endif; ?>
 
-    <form method="post">
-        Введите email: <input type="email" name="email" required><br><br>
+    <form method="POST">
+        <label for="email">Введите email:</label><br>
+        <input type="email" name="email" required><br><br>
         <button type="submit">Отправить ссылку</button>
     </form>
 
-    <p><a href="login.php">Назад</a></p>
+    <p style="margin-top: 15px;"><a href="login.php">Назад</a></p>
 </body>
 </html>

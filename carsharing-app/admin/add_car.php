@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../../config/db.php';
+require_once '../config/db.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../login.php");
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $extension = pathinfo($photo['name'], PATHINFO_EXTENSION);
             $filename = uniqid('car_') . '.' . $extension;
-            $destination = '../uploads/' . $filename;
+            $destination = '../public/uploads/' . $filename;
 
             if (move_uploaded_file($photo['tmp_name'], $destination)) {
                 $pdo = db_connect();
@@ -40,26 +40,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>Добавление автомобиля</title>
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../public/styles.css">
 </head>
-<body>
-    <h1>Добавить автомобиль</h1>
+<body class="centered">
+    <div class="form-container">
+        <h1>Добавить автомобиль</h1>
 
-    <?php if (!empty($error)) echo "<p style='color:red;'>$error</p>"; ?>
+        <?php if (!empty($error)): ?>
+            <div class="error"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
 
-    <form method="post" enctype="multipart/form-data">
-        Модель: <input type="text" name="model" required><br><br>
-        Номерной знак: <input type="text" name="number_plate" required><br><br>
-        Местоположение: <input type="text" name="location" required><br><br>
-        Цена за час: <input type="number" step="0.01" name="price_per_hour" required><br><br>
-        Фото (JPG/PNG): <input type="file" name="photo" accept="image/*" required><br><br>
-        <button type="submit">Сохранить</button>
-    </form>
+        <form method="post" enctype="multipart/form-data">
+            <label>Модель:</label>
+            <input type="text" name="model" required>
 
-    <p><a href="cars.php">Назад к автопарку</a></p>
+            <label>Номерной знак:</label>
+            <input type="text" name="number_plate" required>
+
+            <label>Местоположение:</label>
+            <input type="text" name="location" required>
+
+            <label>Цена за час:</label>
+            <input type="number" step="0.01" name="price_per_hour" required>
+
+            <label>Фото (JPG/PNG):</label>
+            <input type="file" name="photo" accept="image/*" required>
+
+            <button type="submit">Сохранить</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 15px;">
+            <a href="cars.php">Назад к автопарку</a>
+        </div>
+    </div>
 </body>
 </html>

@@ -9,42 +9,31 @@ if (!isset($_SESSION['user_id'])) {
 
 $pdo = db_connect();
 
-// Получаем список доступных автомобилей
-$stmt = $pdo->prepare("SELECT * FROM cars WHERE status = 'available'");
-$stmt->execute();
-$cars = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$car_id = $_GET['id'] ?? null;
+$car = null;
+$message = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $car_id     = $_POST['car_id'] ?? '';
-    $start_time = $_POST['start_time'] ?? '';
-    $end_time   = $_POST['end_time'] ?? '';
-    $user_id    = $_SESSION['user_id'];
+if ($car_id) {
+    $stmt = $pdo->prepare("SELECT * FROM cars WHERE id = ?");
+    $stmt->execute([$car_id]);
+    $car = $stmt->fetch(PDO::FETCH_ASSOC);
+}
 
-    // Валидация
-    if (!$car_id || !$start_time || !$end_time) {
-        $error = "Пожалуйста, заполните все поля.";
-    } elseif (strtotime($start_time) >= strtotime($end_time)) {
-        $error = "Дата окончания должна быть позже даты начала.";
-    } elseif (strtotime($start_time) < time()) {
-        $error = "Дата начала не может быть в прошлом.";
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $car) {
+    $user_id = $_SESSION['user_id'];
+    $start = $_POST['start_time'] ?? '';
+    $end = $_POST['end_time'] ?? '';
+
+    if (!$start || !$end) {
+        $message = "Пожалуйста, укажите дату и время.";
     } else {
-        // Проверка: не забронирована ли машина повторно
-        $stmt = $pdo->prepare("SELECT * FROM bookings WHERE car_id = ? AND ((start_time < ? AND end_time > ?) OR (start_time < ? AND end_time > ?))");
-        $stmt->execute([$car_id, $end_time, $start_time, $start_time, $end_time]);
+        $stmt = $pdo->prepare("INSERT INTO bookings (user_id, car_id, start_time, end_time) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$user_id, $car_id, $start, $end]);
 
-        if ($stmt->fetch()) {
-            $error = "Этот автомобиль уже забронирован на выбранное время.";
-        } else {
-            // Бронирование
-            $stmt = $pdo->prepare("INSERT INTO bookings (user_id, car_id, start_time, end_time) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$user_id, $car_id, $start_time, $end_time]);
+        $stmt = $pdo->prepare("UPDATE cars SET status = 'booked' WHERE id = ?");
+        $stmt->execute([$car_id]);
 
-            // Обновляем статус машины
-            $stmt = $pdo->prepare("UPDATE cars SET status = 'booked' WHERE id = ?");
-            $stmt->execute([$car_id]);
-
-            $success = "Бронирование успешно оформлено!";
-        }
+        $message = "Автомобиль успешно забронирован!";
     }
 }
 ?>
@@ -53,35 +42,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Бронирование автомобиля</title>
+    <title>Бронирование</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <h1>Бронирование автомобиля</h1>
+<body class="centered">
+    <div class="form-container">
+        <h1>Бронирование авто</h1>
 
-    <?php if (!empty($error)) echo "<p style='color:red;'>$error</p>"; ?>
-    <?php if (!empty($success)) echo "<p style='color:green;'>$success</p>"; ?>
+        <?php if ($car): ?>
+            <p><strong>Модель:</strong> <?= htmlspecialchars($car['model']) ?></p>
+            <p><strong>Номер:</strong> <?= htmlspecialchars($car['number_plate']) ?></p>
+            <p><strong>Цена:</strong> <?= htmlspecialchars($car['price_per_hour']) ?> лей/час</p>
 
-    <form method="post">
-        <label>Выберите автомобиль:</label><br>
-        <select name="car_id" required>
-            <option value="">-- Выберите --</option>
-            <?php foreach ($cars as $car): ?>
-                <option value="<?= $car['id'] ?>">
-                    <?= htmlspecialchars($car['model']) ?> (<?= htmlspecialchars($car['number_plate']) ?>) — <?= htmlspecialchars($car['price_per_hour']) ?> лей/час
-                </option>
-            <?php endforeach; ?>
-        </select><br><br>
+            <?php if ($message): ?>
+                <div class="success"><?= $message ?></div>
+            <?php endif; ?>
 
-        <label>Дата и время начала:</label><br>
-        <input type="datetime-local" name="start_time" required><br><br>
+            <form method="post">
+                <label>Начало аренды:</label>
+                <input type="datetime-local" name="start_time" required>
 
-        <label>Дата и время окончания:</label><br>
-        <input type="datetime-local" name="end_time" required><br><br>
+                <label>Окончание аренды:</label>
+                <input type="datetime-local" name="end_time" required>
 
-        <button type="submit">Забронировать</button>
-    </form>
+                <button type="submit">Забронировать</button>
+            </form>
 
-    <p><a href="dashboard.php">Назад в кабинет</a></p>
+        <?php else: ?>
+            <div class="error">Автомобиль не найден.</div>
+        <?php endif; ?>
+
+        <div style="text-align: center; margin-top: 15px;">
+            <a href="dashboard.php">Назад</a>
+        </div>
+    </div>
 </body>
 </html>

@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../../config/db.php';
+require_once '../config/db.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../login.php");
@@ -27,11 +27,12 @@ $cars = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <title>Управление автопарком</title>
-    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../public/styles.css">
+
 </head>
 <body>
     <h1>Автопарк</h1>
-    <p><a href="add_car.php">Добавить автомобиль</a> | <a href="../dashboard.php">Назад</a></p>
+    <p><a href="add_car.php">Добавить автомобиль</a> | <a href="../public/dashboard.php">Назад</a></p>
 
     <table border="1" cellpadding="5" cellspacing="0">
         <tr>
@@ -51,13 +52,19 @@ $cars = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <td><?= htmlspecialchars($car['location']) ?></td>
             <td><?= htmlspecialchars($car['price_per_hour']) ?></td>
             <td><?= htmlspecialchars($car['status']) ?></td>
-            <td>
-                <a href="edit_car.php?id=<?= $car['id'] ?>">Редактировать</a> |
-                <form method="post" style="display:inline;" onsubmit="return confirm('Удалить автомобиль?');">
-                    <input type="hidden" name="delete_id" value="<?= $car['id'] ?>">
-                    <button type="submit">Удалить</button>
-                </form>
-            </td>
+            <td style="text-align: center;">
+            <div style="margin-bottom: 10px;">
+                <img src="../public/uploads/<?= htmlspecialchars($car['photo']) ?>" alt="Фото"
+                    style="height: 110px; width: auto; border-radius: 6px; box-shadow: 0 0 5px rgba(0,0,0,0.5);">
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+                <a href="../public/book.php?id=<?= $car['id'] ?>" class="btn">Забронировать</a>
+                <a href="edit_car.php?id=<?= $car['id'] ?>" class="btn">Редактировать</a>
+                <a href="delete_car.php?id=<?= $car['id'] ?>" class="btn delete">Удалить</a>
+            </div>
+
+        </td>
         </tr>
         <?php endforeach; ?>
     </table>

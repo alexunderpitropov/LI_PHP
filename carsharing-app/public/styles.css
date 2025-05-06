@@ -1,4 +1,4 @@
-/* === Глобальные сбросы и базовые стили === */
+/* === Сброс и базовые стили === */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -9,8 +9,8 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #2e2e2e;
     color: #f2f2f2;
-    padding: 40px;
     min-height: 100vh;
+    padding: 40px 60px; /* ← добавлен отступ по бокам */
 }
 
 /* === Центровка === */
@@ -21,7 +21,7 @@ body {
     height: 100vh;
 }
 
-/* === Форма входа/регистрации/сброса === */
+/* === Контейнер формы === */
 .form-container {
     background-color: #1e1e22;
     padding: 35px 30px;
@@ -39,7 +39,8 @@ body {
     color: #ffffff;
 }
 
-form input, form select {
+form input,
+form select {
     width: 100%;
     padding: 12px 14px;
     margin-bottom: 16px;
@@ -132,7 +133,31 @@ tr:hover {
     background-color: #2b2b2b;
 }
 
-/* === Карточки авто (используется в других разделах) === */
+/* === Кнопки === */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #ff1e1e;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background 0.2s ease;
+}
+
+.btn:hover {
+    background-color: #cc0000;
+}
+
+.btn.delete {
+    background-color: #b30000;
+}
+
+.btn.delete:hover {
+    background-color: #990000;
+}
+
+/* === Карточки авто === */
 .car-list {
     display: flex;
     flex-wrap: wrap;
@@ -141,107 +166,27 @@ tr:hover {
     justify-content: center;
 }
 
-.car-card {
-    background-color: #1e1e22;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 0 10px rgba(255, 0, 0, 0.1);
-    width: 300px;
-    transition: transform 0.3s ease;
-}
-
-.car-card:hover {
-    transform: translateY(-5px);
-}
-
-.car-card img {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-}
-
-.car-card-content {
-    padding: 18px;
-}
-
-.car-card-content h3 {
-    color: #ffffff;
-    margin-bottom: 10px;
-}
-
-.car-card-content p {
-    font-size: 14px;
-    color: #ccc;
-}
-
-/* === Анимация === */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* === === === ОБНОВЛЁННЫЙ СТИЛЬ ГЛАВНОЙ СТРАНИЦЫ (F1-style) === === === */
-
-.home-body {
-    background-color: #2e2e2e;
-    color: #fff;
-}
-
-/* HEADER */
-.main-header {
-    background-color: #ae0505;
-    padding: 20px 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo {
-    font-size: 28px;
-    color: white;
-    font-weight: bold;
-    letter-spacing: 1px;
-}
-.logo span {
-    color: #000;
-}
-
-/* Навигация */
-.main-header nav a {
-    color: white;
-    text-decoration: none;
-    margin-left: 20px;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.main-header nav a:hover {
-    text-decoration: underline;
-}
-
-/* Сетка карточек */
-.content-grid {
+/* === Адаптивная сетка машин === */
+.car-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 25px;
-    padding: 40px;
+    grid-template-columns: repeat(3, 1fr); /* Точно 3 колонки */
+    gap: 40px;
+    padding: 80px 120px 120px 80px;
+    justify-items: center;
 }
 
-/* Карточка */
+
+/* === Отдельная карточка авто (index.php) === */
 .card {
     background: #f9f9f9;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin: 60px 0px 0px 60px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
     transition: transform 0.3s ease;
+    width: 420px;
 }
 
 .card:hover {
@@ -250,24 +195,24 @@ tr:hover {
 
 .card img {
     width: 100%;
-    height: 180px;
+    height: 240px;
     object-fit: cover;
 }
 
 .card-body {
-    padding: 20px;
+    padding: 24px;
 }
 
 .card-body h2 {
-    font-size: 18px;
-    margin-bottom: 10px;
+    font-size: 20px;
+    margin-bottom: 12px;
     color: #111;
 }
 
 .card-body p {
-    font-size: 15px;
+    font-size: 16px;
     color: #555;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 
 .card-button {
@@ -285,6 +230,28 @@ tr:hover {
     background-color: #d22222;
 }
 
+
+.form-container {
+    text-align: center; /* центрирует весь текст и инлайновые элементы */
+}
+
+.form-container h2,
+.form-container p {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.form-container img {
+    display: block;
+    margin: 0 auto 12px auto;
+}
+
+.form-container button {
+    width: auto;
+    padding: 10px 20px;
+    display: inline-block;
+}
+
 .tag {
     background: #111;
     color: white;
@@ -293,4 +260,61 @@ tr:hover {
     display: inline-block;
     margin-bottom: 10px;
     border-radius: 4px;
+}
+
+/* === HEADER === */
+.main-header {
+    background-color: #ae0505;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 28px;
+    color: white;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.logo span {
+    color: #000;
+}
+
+/* Навигация */
+.main-header nav a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.main-header nav a:hover {
+    text-decoration: underline;
+}
+
+/* === Анимация появления === */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 1280px) {
+    .car-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 колонки на средних экранах */
+    }
+}
+
+@media (max-width: 768px) {
+    .car-grid {
+        grid-template-columns: 1fr; /* 1 колонка на телефонах */
+    }
 }
